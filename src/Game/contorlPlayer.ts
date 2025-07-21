@@ -49,7 +49,7 @@ export class ControlPlayer extends EventEmitter {
     roll!: boolean;
     // 是否在执行回头看的动作
     runlookback!: boolean;
-    // 玩家跑步距离
+    // Player跑步距离
     playerRunDistance!: number;
     environement: Environment = new Environment();
     // 当前所在地板块
@@ -87,7 +87,7 @@ export class ControlPlayer extends EventEmitter {
         this.allAnimate = allAnimate;
         // 跑步速度
         this.runVelocity = 20;
-        // 跳跃高度
+        // Jump高度
         this.jumpHight = 3.3;
         this.gameStart = false;
         this.far = 2.5; // 人物身高
@@ -106,7 +106,7 @@ export class ControlPlayer extends EventEmitter {
         this.addAnimationListener();
         this.initRaycaster();
     }
-    // 开始游戏初始化
+    // Start游戏Initialize
     startGame(currentAction: string, model: THREE.Group) {
         this.status = currentAction;
         this.allAnimate[currentAction].play();
@@ -146,7 +146,7 @@ export class ControlPlayer extends EventEmitter {
     addAnimationListener() {
         window.addEventListener('keydown', (e: KeyboardEvent) => {
             const key = e.key;
-            // 开始游戏
+            // Start游戏
             if (key === 'p') {
                 if (!this.gameStart) {
                     this.gameStart = true;
@@ -236,7 +236,7 @@ export class ControlPlayer extends EventEmitter {
             }
         });
     }
-// 左右移动控制
+// 左Move Right动Control
 handleLeftRightMove() {
     const targetPosition = this.targetPosition;
     const lastPosition = this.lastPosition;
@@ -268,7 +268,7 @@ handleLeftRightMove() {
         }
     }
 }
-    // 上下移动控制
+    // 上下移动Control
     handleUpdownMove() {
     }
     // 全部射线碰撞检测
@@ -421,7 +421,7 @@ handleLeftRightMove() {
             }
         }
     }
-    // 控制人物的动作变化
+    // Control人物的动作变化
     changeStatus(delta: number) {
         if (!this.gameStart) {
             return;
@@ -462,7 +462,7 @@ handleLeftRightMove() {
         this.allAnimate[this.status].reset().fadeIn(0.1).play();
         this.lastAnimation = this.status;
     }
-    // 检查玩家距离
+    // 检查Player距离
     checkPlayerDistance() {
         const ds = this.playerRunDistance;
         // 当前所在的地板块
@@ -491,11 +491,11 @@ handleLeftRightMove() {
             const locateObstacal = point / obstacal;
             console.log('障碍物', object.name, '障碍物的百分比', locateObstacal);
             this.firstFrontCollide = {isCollide: false, name: object.name};
-            // 障碍物撞击面积大于0.75，直接判定游戏结束 播放角色死亡动画
+            // 障碍物撞击面积大于0.75，直接判定Game Over 播放角色死亡动画
             if (locateObstacal < 0.75) {
                 this.status = playerStatus.DIE;
                 this.gameStatus = GAME_STATUS.END;
-                showToast('你死了！请重新开始游戏！');
+                showToast('你死了！请Restart游戏！');
                 this.status = playerStatus.DIE;
 this.gameStatus = GAME_STATUS.END;
 this.game.emit('gameStatus', this.gameStatus);
@@ -536,85 +536,4 @@ if (userId && score > 0) {
                 content: updatedContent,
                 sha: file.sha
             })
-        });
-    })
-    .then(() => {
-        console.log("✅ Score updated to GitHub");
-        this.score = 0; // Optional: Reset score
-    })
-    .catch(err => {
-        console.error("❌ Error updating score:", err);
-    });
-}
-       userId: localStorage.getItem("user_id"),
-       score: score
-   })
-}).then(() => {
-   this.score = 0; // Reset score after reward
-});
-                this.fallingSpeed += 0.4;
-                this.model.position.y += obstacal * (1 - locateObstacal);
-                this.smallMistake += 1;
-                this.emit('collision');
-                showToast('撞到障碍物！请注意！！！');
-                this.firstFrontCollide.isCollide = false;
-                setTimeout(() => {
-                    this.firstFrontCollide.isCollide = true;
-                }, 400);
-
-            }
-
-        }
-    }
-    // 金币旋转
-    coinRotate() {
-        const ds = this.playerRunDistance;
-        // 当前所在的地板块
-        const nowPlane = Math.floor(ds / roadLength);
-        const nowPlane1 = nowPlane + 1;
-        const intersectCoin = this.environement.coin?.[nowPlane];
-        const intersectCoin1 = this.environement.coin?.[nowPlane1];
-        // 使得两个场景的硬币做旋转动画
-        intersectCoin && intersectCoin.traverse(mesh => {
-            if (mesh.name === 'coin') {
-                mesh.rotation.z += Math.random() * 0.1;
-            }
-        });
-        intersectCoin1 && intersectCoin1.traverse(mesh => {
-            if (mesh.name === 'coin') {
-                mesh.rotation.z += Math.random() * 0.1;
-            }
-        });
-    }
-    // 检查比赛状态
-    checkGameStatus() {
-        const mistake = this.smallMistake;
-        // 小错误到达两次则直接终止比赛
-        if (mistake >= 2 && this.gameStatus !== GAME_STATUS.END) {
-            this.status = playerStatus.DIE;
-            this.gameStatus = GAME_STATUS.END;
-            this.game.emit('gameStatus', this.gameStatus);
-        }
-    }
-    update(delta: number) {
-        this.changeStatus(delta);
-        this.handleLeftRightMove();
-        this.checkPlayerDistance();
-        this.collideCheckAll();
-        this.frontCollideCheckStatus();
-        this.coinRotate();
-        this.checkGameStatus();
-        if (this.gameStatus === GAME_STATUS.START) {
-            this.game.emit('gameData', {score: this.score += 20, coin: this.coin, mistake: this.smallMistake});
-        }
-        // 重力或者跳跃
-        if (this.isJumping || !this.downCollide) {
-            const ratio = 0.1;
-            this.fallingSpeed += -9.2 * ratio * delta;
-            this.model.position.add(new THREE.Vector3(0, this.fallingSpeed, 0));
-        }
-        else {
-            this.fallingSpeed = 0;
-        }
-    }
-}
+      
