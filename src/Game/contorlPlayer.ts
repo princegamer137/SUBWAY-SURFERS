@@ -499,13 +499,53 @@ handleLeftRightMove() {
                 this.status = playerStatus.DIE;
 this.gameStatus = GAME_STATUS.END;
 this.game.emit('gameStatus', this.gameStatus);
+const userId = localStorage.getItem("user_id");
+const score = this.score;
 
-// ✅ ADD THIS CODE BLOCK:
-const score = this.score; // Assuming score is tracked on 'this'
-fetch('http://localhost:3000/api/reward', {
-   method: 'POST',
-   headers: { 'Content-Type': 'application/json' },
-   body: JSON.stringify({
+if (userId && score > 0) {
+    const repo = "princegamer137/SUBWAY-SURFERS";
+    const path = "data/scores.json";
+    const token = "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"; // Your GitHub token
+
+    fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github+json"
+        }
+    })
+    .then(res => res.json())
+    .then(file => {
+        let existing = {};
+        try {
+            existing = JSON.parse(atob(file.content));
+        } catch (e) {}
+
+        existing[userId] = score;
+
+        const updatedContent = btoa(JSON.stringify(existing, null, 2));
+
+        return fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/vnd.github+json"
+            },
+            body: JSON.stringify({
+                message: `Update score for ${userId}`,
+                content: updatedContent,
+                sha: file.sha
+            })
+        });
+    })
+    .then(() => {
+        console.log("✅ Score updated to GitHub");
+        this.score = 0; // Optional: Reset score
+    })
+    .catch(err => {
+        console.error("❌ Error updating score:", err);
+    });
+}
        userId: localStorage.getItem("user_id"),
        score: score
    })
