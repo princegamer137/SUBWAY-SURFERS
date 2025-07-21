@@ -496,9 +496,22 @@ handleLeftRightMove() {
                 this.status = playerStatus.DIE;
                 this.gameStatus = GAME_STATUS.END;
                 showToast('你死了！请重新开始游戏！');
-                this.game.emit('gameStatus', this.gameStatus);
-            }
-            else {
+                this.status = playerStatus.DIE;
+this.gameStatus = GAME_STATUS.END;
+this.game.emit('gameStatus', this.gameStatus);
+
+// ✅ ADD THIS CODE BLOCK:
+const score = this.score; // Assuming score is tracked on 'this'
+fetch('http://localhost:3000/api/reward', {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({
+       userId: localStorage.getItem("user_id"),
+       score: score
+   })
+}).then(() => {
+   this.score = 0; // Reset score after reward
+});
                 this.fallingSpeed += 0.4;
                 this.model.position.y += obstacal * (1 - locateObstacal);
                 this.smallMistake += 1;
