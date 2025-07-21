@@ -511,5 +511,5 @@ if (userId && score > 0) {
         method: "GET",
        
 
-}}}}}})
+)}
                                                                      
