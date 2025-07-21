@@ -505,8 +505,9 @@ const score = this.score;
 if (userId && score > 0) {
     const repo = "princegamer137/SUBWAY-SURFERS";
     const path = "data/scores.json";
-    const token = "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"; // Your GitHub token
+    const token = process.env.GITHUB_TOKEN || ""; // Your GitHub token
 
     fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
         method: "GET",
-       
+
+            
