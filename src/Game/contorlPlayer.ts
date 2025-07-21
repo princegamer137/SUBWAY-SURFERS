@@ -28,7 +28,7 @@ export class ControlPlayer extends EventEmitter {
     runVelocity: number;
     jumpHight: number;
     targetPosition!: number;
-    // 当前轨道
+    // Current track
     way!: number;
     lastPosition!: number;
     // sceneOctree!: SceneOctree;
@@ -40,26 +40,26 @@ export class ControlPlayer extends EventEmitter {
     smallMistake!: number;
     far: number;
     key!: string;
-    // 原来的轨道
+    // Original track
     originLocation!: THREE.Vector3;
-    // 存储单次左右碰撞的
+    // Stores single left/right collision
     removeHandle: boolean = true;
     lastAnimation!: string;
-    // 是否在执行滚动的动作
+    // Whether roll action is being executed
     roll!: boolean;
-    // 是否在执行回头看的动作
+    // Whether looking back action is being executed
     runlookback!: boolean;
-    // Player跑步距离
+    // çŽ©å®¶è·‘æ­¥è·ç¦»
     playerRunDistance!: number;
     environement: Environment = new Environment();
-    // 当前所在地板块
+    // Current floor tile
     currentPlane: number = -1;
-    // 是否加地板
+    // Whether to add floor
     isAddPlane: boolean = false;
-    fallingSpeed: number = 0; // 下降速度
-    downCollide: boolean = false; // 角色是否着地
+    fallingSpeed: number = 0; // Falling speed
+    downCollide: boolean = false; // Whether character is on ground
 
-    gameStatus: GAME_STATUS = GAME_STATUS.READY; // 比赛状态
+    gameStatus: GAME_STATUS = GAME_STATUS.READY; // æ¯”èµ›çŠ¶æ€
     gameStart: boolean = false;
     raycasterDown: THREE.Raycaster;
     raycasterFrontDown: THREE.Raycaster;
@@ -85,12 +85,12 @@ export class ControlPlayer extends EventEmitter {
         this.player = new Player();
         this.scene = this.game.scene;
         this.allAnimate = allAnimate;
-        // 跑步速度
+        // è·‘æ­¥é€Ÿåº¦
         this.runVelocity = 20;
-        // Jump高度
+        // è·³è·ƒé«˜åº¦
         this.jumpHight = 3.3;
         this.gameStart = false;
-        this.far = 2.5; // 人物身高
+        this.far = 2.5; // äººç‰©èº«é«˜
         this.raycasterDown = new THREE.Raycaster();
         this.raycasterFrontDown = new THREE.Raycaster();
         this.raycasterFront = new THREE.Raycaster();
@@ -106,16 +106,16 @@ export class ControlPlayer extends EventEmitter {
         this.addAnimationListener();
         this.initRaycaster();
     }
-    // Start游戏Initialize
+    // å¼€å§‹æ¸¸æˆåˆå§‹åŒ–
     startGame(currentAction: string, model: THREE.Group) {
         this.status = currentAction;
         this.allAnimate[currentAction].play();
         this.lastAnimation = currentAction;
-        // 当前道路
+        // å½“å‰é“è·¯
         this.way = 2;
-        // 是否在滚动
+        // æ˜¯å¦åœ¨æ»šåŠ¨
         this.roll = false;
-        // 是否向后看
+        // æ˜¯å¦å‘åŽçœ‹
         this.runlookback = false;
         this.playerRunDistance = model.position.z;
         this.smallMistake = 0;
@@ -126,14 +126,14 @@ export class ControlPlayer extends EventEmitter {
     }
 
     initRaycaster() {
-        // 创建一个初始方向，例如指向Z轴
+        // åˆ›å»ºä¸€ä¸ªåˆå§‹æ–¹å‘ï¼Œä¾‹å¦‚æŒ‡å‘Zè½´
         const initialDirection = new THREE.Vector3(0, -1, 0);
-        // 使用Quaternion进行旋转，创建一个30度的旋转
-        const rotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 6); // 30度是弧度制的
-        // 将初始方向旋转约30度
+        // ä½¿ç”¨Quaternionè¿›è¡Œæ—‹è½¬ï¼Œåˆ›å»ºä¸€ä¸ª30åº¦çš„æ—‹è½¬
+        const rotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 6); // 30åº¦æ˜¯å¼§åº¦åˆ¶çš„
+        // å°†åˆå§‹æ–¹å‘æ—‹è½¬çº¦30åº¦
         const direction = initialDirection.clone().applyQuaternion(rotation).normalize();
         this.raycasterFrontDown.ray.direction = new THREE.Vector3(0, 1, 0);
-        // 斜向下的射线
+        // æ–œå‘ä¸‹çš„å°„çº¿
         this.raycasterDown.ray.direction = new THREE.Vector3(0, -1, 0);
         this.raycasterFrontDown.ray.direction = direction;
         this.raycasterLeft.ray.direction = new THREE.Vector3(-1, 0, 0);
@@ -146,7 +146,7 @@ export class ControlPlayer extends EventEmitter {
     addAnimationListener() {
         window.addEventListener('keydown', (e: KeyboardEvent) => {
             const key = e.key;
-            // Start游戏
+            // å¼€å§‹æ¸¸æˆ
             if (key === 'p') {
                 if (!this.gameStart) {
                     this.gameStart = true;
@@ -188,11 +188,11 @@ export class ControlPlayer extends EventEmitter {
                 if (!this.gameStart || this.status === playerStatus.DIE) {
                     return;
                 }
-                // 位于最左边的道路
+                // ä½äºŽæœ€å·¦è¾¹çš„é“è·¯
                 if (this.way === 1) {
                     this.runlookback = true;
                     this.emit('collision');
-                    showToast('撞到障碍物！请注意！！！');
+                    showToast('æ’žåˆ°éšœç¢ç‰©ï¼è¯·æ³¨æ„ï¼ï¼ï¼');
                     setTimeout(() => {
                         this.runlookback = false;
                     }, 1040);
@@ -211,7 +211,7 @@ export class ControlPlayer extends EventEmitter {
                 if (this.way === 3) {
                     this.runlookback = true;
                     this.emit('collision');
-                    showToast('撞到障碍物！请注意！！！');
+                    showToast('æ’žåˆ°éšœç¢ç‰©ï¼è¯·æ³¨æ„ï¼ï¼ï¼');
                     setTimeout(() => {
                         this.runlookback = false;
                     }, 1040);
@@ -236,7 +236,7 @@ export class ControlPlayer extends EventEmitter {
             }
         });
     }
-// 左Move Right动Control
+// å·¦å³ç§»åŠ¨æŽ§åˆ¶
 handleLeftRightMove() {
     const targetPosition = this.targetPosition;
     const lastPosition = this.lastPosition;
@@ -244,12 +244,12 @@ handleLeftRightMove() {
         this.removeHandle = true;
     }
     if (targetPosition !== lastPosition) {
-        // removehandle处理单次碰撞
-        // 处理左右碰撞回弹效果
+        // removehandleå¤„ç†å•æ¬¡ç¢°æ’ž
+        // å¤„ç†å·¦å³ç¢°æ’žå›žå¼¹æ•ˆæžœ
         if ((this.leftCollide || this.rightCollide) && this.removeHandle) {
             this.smallMistake += 1;
             this.emit('collision');
-            showToast('撞到障碍物！请注意！！！');
+            showToast('æ’žåˆ°éšœç¢ç‰©ï¼è¯·æ³¨æ„ï¼ï¼ï¼');
             this.targetPosition = this.originLocation.x;
             this.removeHandle = false;
             if (targetPosition > lastPosition) {
@@ -259,8 +259,8 @@ handleLeftRightMove() {
                 this.way += 1;
             }
         }
-        // 平滑移动逻辑
-        const moveSpeed = 0.15; // 移动速度
+        // å¹³æ»‘ç§»åŠ¨é€»è¾‘
+        const moveSpeed = 0.15; // ç§»åŠ¨é€Ÿåº¦
         const diff = targetPosition - lastPosition;
         if (Math.abs(diff) > 0.0001) {
             this.model.position.x += diff * moveSpeed;
@@ -268,14 +268,14 @@ handleLeftRightMove() {
         }
     }
 }
-    // 上下移动Control
+    // ä¸Šä¸‹ç§»åŠ¨æŽ§åˆ¶
     handleUpdownMove() {
     }
-    // 全部射线碰撞检测
+    // å…¨éƒ¨å°„çº¿ç¢°æ’žæ£€æµ‹
     collideCheckAll() {
         const position = this.model.position.clone();
         try {
-            // 地面检测  far射线长度
+            // åœ°é¢æ£€æµ‹  farå°„çº¿é•¿åº¦
             this.collideCheck(Side.DOWN, position, 5);
             this.collideCheck(Side.FRONTDOWN, position, 3);
             this.collideCheck(Side.FRONT, position, 2);
@@ -287,7 +287,7 @@ handleLeftRightMove() {
         }
 
     }
-    // 单个射线碰撞检测
+    // å•ä¸ªå°„çº¿ç¢°æ’žæ£€æµ‹
     collideCheck(
         side: Side,
         position: THREE.Vector3,
@@ -321,7 +321,7 @@ handleLeftRightMove() {
         // );
         // this.scene.add(arrowHelper);
         const ds = this.playerRunDistance;
-        // 当前所在的地板块
+        // å½“å‰æ‰€åœ¨çš„åœ°æ¿å—
         const nowPlane = Math.floor(ds / roadLength);
         const intersectPlane = this.environement.plane?.[nowPlane];
         const intersectObstacal = this.environement.obstacal?.[nowPlane];
@@ -362,7 +362,7 @@ handleLeftRightMove() {
                     r2.object.visible = false;
                     this.coin += 1;
                 }
-                // 撞击点信息
+                // æ’žå‡»ç‚¹ä¿¡æ¯
                 const c2 = r2Name && r2Name !== 'coin';
                 this.frontCollideInfo = r1 || r2;
                 c1 || c2 ? (this.frontCollide = true) : (this.frontCollide = false);
@@ -394,7 +394,7 @@ handleLeftRightMove() {
                     r2.object.visible = false;
                     this.coin += 1;
                 }
-                // 撞击点信息
+                // æ’žå‡»ç‚¹ä¿¡æ¯
                 const c2 = r2Name && r2Name !== 'coin';
                 c1 || c2 ? (this.leftCollide = true) : (this.leftCollide = false);
                 break;
@@ -414,14 +414,14 @@ handleLeftRightMove() {
                     r2.object.visible = false;
                     this.coin += 1;
                 }
-                // 撞击点信息
+                // æ’žå‡»ç‚¹ä¿¡æ¯
                 const c2 = r2Name && r2Name !== 'coin';
                 c1 || c2 ? (this.rightCollide = true) : (this.rightCollide = false);
                 break;
             }
         }
     }
-    // Control人物的动作变化
+    // æŽ§åˆ¶äººç‰©çš„åŠ¨ä½œå˜åŒ–
     changeStatus(delta: number) {
         if (!this.gameStart) {
             return;
@@ -454,7 +454,7 @@ handleLeftRightMove() {
         else if (this.runlookback) {
             this.status = playerStatus.RUNLOOKBACK;
         }
-        // 重复动画不执行
+        // é‡å¤åŠ¨ç”»ä¸æ‰§è¡Œ
         if (this.status === this.lastAnimation) {
             return;
         }
@@ -462,40 +462,40 @@ handleLeftRightMove() {
         this.allAnimate[this.status].reset().fadeIn(0.1).play();
         this.lastAnimation = this.status;
     }
-    // 检查Player距离
+    // æ£€æŸ¥çŽ©å®¶è·ç¦»
     checkPlayerDistance() {
         const ds = this.playerRunDistance;
-        // 当前所在的地板块
+        // å½“å‰æ‰€åœ¨çš„åœ°æ¿å—
         const nowPlane = Math.floor(ds / roadLength) + 1;
 
-        // 当前走的路程站总长度的百分比
-        // 当到达45%的时候动态添加场景  无限地图
+        // å½“å‰èµ°çš„è·¯ç¨‹ç«™æ€»é•¿åº¦çš„ç™¾åˆ†æ¯”
+        // å½“åˆ°è¾¾45%çš„æ—¶å€™åŠ¨æ€æ·»åŠ åœºæ™¯  æ— é™åœ°å›¾
         const runToLength = (ds - roadLength * (nowPlane - 1)) / roadLength;
         if (runToLength > 0.45 && this.currentPlane !== nowPlane) {
-            console.log('添加下一个地板');
+            console.log('æ·»åŠ ä¸‹ä¸€ä¸ªåœ°æ¿');
             this.currentPlane = nowPlane;
             this.environement.z -= roadLength;
             const newZ = this.environement.z;
-            // 放置在z轴方向上
+            // æ”¾ç½®åœ¨zè½´æ–¹å‘ä¸Š
             this.environement.setGroupScene(newZ, -5 - nowPlane * roadLength, false);
         }
     }
-    // 向前的碰撞检测判定
+    // å‘å‰çš„ç¢°æ’žæ£€æµ‹åˆ¤å®š
     frontCollideCheckStatus() {
         if (this.frontCollide && this.firstFrontCollide.isCollide) {
             const {object} = this.frontCollideInfo;
             const {y} = this.frontCollideInfo.point;
             const point = Number(y - 2);
             const obstacal = Number(Obstacal[object.name]?.y);
-            // 计算撞击面积百分比
+            // è®¡ç®—æ’žå‡»é¢ç§¯ç™¾åˆ†æ¯”
             const locateObstacal = point / obstacal;
-            console.log('障碍物', object.name, '障碍物的百分比', locateObstacal);
+            console.log('éšœç¢ç‰©', object.name, 'éšœç¢ç‰©çš„ç™¾åˆ†æ¯”', locateObstacal);
             this.firstFrontCollide = {isCollide: false, name: object.name};
-            // 障碍物撞击面积大于0.75，直接判定Game Over 播放角色死亡动画
+            // éšœç¢ç‰©æ’žå‡»é¢ç§¯å¤§äºŽ0.75ï¼Œç›´æŽ¥åˆ¤å®šæ¸¸æˆç»“æŸ æ’­æ”¾è§’è‰²æ­»äº¡åŠ¨ç”»
             if (locateObstacal < 0.75) {
                 this.status = playerStatus.DIE;
                 this.gameStatus = GAME_STATUS.END;
-                showToast('你死了！请Restart游戏！');
+                showToast('ä½ æ­»äº†ï¼è¯·é‡æ–°å¼€å§‹æ¸¸æˆï¼');
                 this.status = playerStatus.DIE;
 this.gameStatus = GAME_STATUS.END;
 this.game.emit('gameStatus', this.gameStatus);
@@ -509,31 +509,4 @@ if (userId && score > 0) {
 
     fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
         method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github+json"
-        }
-    })
-    .then(res => res.json())
-    .then(file => {
-        let existing = {};
-        try {
-            existing = JSON.parse(atob(file.content));
-        } catch (e) {}
-
-        existing[userId] = score;
-
-        const updatedContent = btoa(JSON.stringify(existing, null, 2));
-
-        return fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-            method: "PUT",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Accept": "application/vnd.github+json"
-            },
-            body: JSON.stringify({
-                message: `Update score for ${userId}`,
-                content: updatedContent,
-                sha: file.sha
-            })
-      
+       
