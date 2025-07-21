@@ -482,7 +482,7 @@ handleLeftRightMove() {
     }
     // å‘å‰çš„ç¢°æ’žæ£€æµ‹åˆ¤å®š
     frontCollideCheckStatus() {
-        if (this.frontCollide && this.firstFrontCollide.isCollide) {
+        if (this.frontCollide && this.firstFrontCollide.isCollide) 
             const {object} = this.frontCollideInfo;
             const {y} = this.frontCollideInfo.point;
             const point = Number(y - 2);
@@ -507,7 +507,7 @@ if (userId && score > 0) {
     const path = "data/scores.json";
     const token = process.env.GITHUB_TOKEN || ""; // Your GitHub token
 
-    fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-        method: "GET",
+    fetch`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: "GET",}
 
             
